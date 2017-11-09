@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="app_name">ESELAB</string>
+    <string name="menu_settings">Settings</string>
+	<string name="voice">音频通讯</string>  
+	<string name="video">视频通讯</string>
+</resources>
