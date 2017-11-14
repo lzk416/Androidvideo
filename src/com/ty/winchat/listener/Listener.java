@@ -28,6 +28,10 @@ public abstract class Listener extends Thread{
 	public static final int  KEY_EXCHANGE=15;//请求公钥交换
 	public static final int ACK_RECEIVE=16;//私钥收到
 	
+	public static final int ASK_VOICE=17;//请求语音聊天
+	public static final int REPLAY_VOICE_ALLOW=18;//请求语音聊天
+	public static final int REPLAY_VOICE_NOT_ALLOW=19;//请求语音聊天
+	
 	
 	/**打开监听器*/
 	abstract void open() throws IOException;

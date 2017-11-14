@@ -127,7 +127,9 @@ public class ChatService extends Service implements OnUDPReceiveMessage{
 	case Listener.REMOVE_USER:
 		sendBroadcast(new Intent(Main.ACTION_ADD_USER));
 		break;
-		
+	case Listener.REPLAY_VOICE_ALLOW:
+	case Listener.REPLAY_VOICE_NOT_ALLOW:
+	case Listener.ASK_VOICE:
 	case Listener.ACK_RECEIVE:
 	case Listener.KEY_EXCHANGE:
 	case Listener.ASK_VIDEO:

@@ -5,7 +5,7 @@ package com.lzk.gdut.audio.sm;
 
 public class SM4Utils
 {
-	public static String secretKey ="";
+	public static String secretKey ="asasasasasasasas";
 	public boolean hexString = false;
 	
 	public static void setSecretKey(String secretKey) {

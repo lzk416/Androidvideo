@@ -3,8 +3,11 @@ package com.lzk.gdut.audio.sm;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import android.util.Log;
+
 public class SM4 
 {
+	String LOG = "AudioDecrypt";
 	public static final int SM4_ENCRYPT = 1;
 	
 	public static final int SM4_DECRYPT = 0;
@@ -196,7 +199,22 @@ public class SM4
 		{
 			int p = input[input.length - 1];
 			ret = new byte[input.length - p];
-			System.arraycopy(input, 0, ret, 0, input.length - p);
+			
+			
+			/**
+			 * src:源数组,srcPos:源数组要复制的起始位置,dest:目的数组,destPos:目的数组放置的起始位置,length:复制的长度。
+			 * (Object src, int srcPos,Object dest,int destPos,int length)
+			 */
+			Log.e(LOG, "最后一位数据" + p+ "input的长度： "+ input.length + " input长度减去P: "+(input.length - p));    
+			
+			try {
+				System.arraycopy(input, 0, ret, 0, input.length - p);
+			} catch (IndexOutOfBoundsException e) {
+				Log.e(LOG, "IndexOutOfBoundsException");
+			}
+			catch (ArrayStoreException e) {
+				Log.e(LOG, "ArrayStoreException");
+			}
 		}
 		return ret;
 	}

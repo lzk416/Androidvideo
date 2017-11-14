@@ -43,8 +43,8 @@ public class UDPVoiceListener extends UDPListener{
 	    	this.address=address;
 	    }
 	    
-
-	@Override
+	//重写了UDPListener中的init方法
+	    @Override
 	    void init() {
 		setPort(port);
 		setBufferSize(BUFFER_SIZE);
@@ -76,12 +76,12 @@ public class UDPVoiceListener extends UDPListener{
 	void send() {
 		byte[]  buffer = new byte[recBufSize]; 
         //从MIC保存数据到缓冲区  
-        int bufferReadResult = audioRecord.read(buffer, 0,   recBufSize);  
+        int bufferReadResult = audioRecord.read(buffer, 0, recBufSize);  
         //写入数据即播放,发送数据
         if(bufferReadResult>0)
 		 send(buffer,bufferReadResult, address, port);
 	}
-	
+	 
 	
 	@Override
 	public void onReceive(byte[] data, DatagramPacket packet) {

@@ -87,7 +87,9 @@ public class UDPMessageListener extends UDPListener{
 				case REMOVE_USER://É¾³ýÓÃ»§
 					users.remove(sourceIp);
 					break;
-					
+				case ASK_VOICE:
+				case REPLAY_VOICE_ALLOW:
+				case REPLAY_VOICE_NOT_ALLOW:
 				case ASK_VIDEO:
 				case ACK_RECEIVE:
 				case KEY_EXCHANGE:

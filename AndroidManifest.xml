@@ -7,6 +7,12 @@
         android:minSdkVersion="10"
         />
     
+     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>  
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
@@ -42,7 +48,7 @@
         <activity android:name=".ui.VideoChat"></activity>
         <activity android:name=".ui.FileChoose"></activity>
         <activity android:name=".ui.RoomChat" android:windowSoftInputMode="stateHidden"></activity>
-        
+         <activity android:name="com.lzk.gdut.audio.ui.AudioActivity" android:windowSoftInputMode="stateHidden"></activity>
         <service android:name=".service.ChatService"/>
         
         <receiver android:name="com.ty.winchat.service.HeartBeatBroaadcastReceiver"></receiver>

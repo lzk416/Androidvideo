@@ -16,6 +16,7 @@ import com.lzk.gdut.audio.sm.RandomUtil;
 import com.lzk.gdut.audio.sm.SM2Utils;
 import com.lzk.gdut.audio.sm.SM4Utils;
 import com.lzk.gdut.audio.sm.Util;
+import com.lzk.gdut.audio.ui.AudioActivity;
 import com.ty.winchat.R;
 import com.ty.winchat.WinChatApplication;
 import com.ty.winchat.listener.Listener;
@@ -52,8 +53,13 @@ import android.widget.Toast;
 public class VoiceAndVideo extends Base implements OnClickListener{
 	
 	private static final String TAG =  "KEYCHANGE";
-	
+	//请求语音则为true，请求视频即为false
+	private boolean flag = false;
 	private Button voice,video;
+	
+	public void setFlag(boolean flag) {
+		this.flag = flag;
+	}
 	private ListView listView;
 	private MyBinder binder;
 	private User chatter;//对方聊天人
@@ -127,7 +133,8 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.voice:
-			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VIDEO));
+			
+			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VOICE));
 			closeMorePopupWindow();
 			showToast("已发送请求，对方同意后自动进行语音聊天");
 			break;
@@ -242,26 +249,25 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					myMessages.add(message);
 					break;
 					
-				case Listener.ACK_RECEIVE:
-					showToast("秘钥交换完成");
-					Intent intent2=new Intent(VoiceAndVideo.this,VideoChat.class );
-					intent2.putExtra("name", topTitle.getText().toString());
-					intent2.putExtra("IP", chatterIP);
-					intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent2);
-					break;
-					
-				case Listener.KEY_EXCHANGE:
-					String str = new String(SM2Utils.decrypt(Util.hexToByte(SM2Utils.getPrik()),Util.hexToByte(message.getMsg())));
-					showToast("秘钥收到"+str);
-					SM4Utils.setSecretKey(str);
-					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ACK_RECEIVE));
-					Intent intent1=new Intent(VoiceAndVideo.this,VideoChat.class );
-					intent1.putExtra("name", topTitle.getText().toString());
-					intent1.putExtra("IP", chatterIP);
-					intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent1);
-					
+				case Listener.ASK_VOICE:
+					showDialog("对方请求语音,同意吗？", new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							flag=true;
+							showToast("正在发送公钥");
+							SM2Utils.generateKeyPair();
+							String pubk = SM2Utils.getPubk();
+							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(pubk, Listener.REPLAY_VOICE_ALLOW));
+							if(popupWindow!=null) popupWindow.dismiss();
+						}
+					}, new OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.REPLAY_VIDEO_NOT_ALLOW));
+							if(popupWindow!=null) popupWindow.dismiss();
+						}
+					}, true);
 					break;
 					
 				case Listener.ASK_VIDEO:
@@ -283,14 +289,72 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 						}
 					}, true);
 					break;
-				case Listener.REPLAY_VIDEO_ALLOW:
+					
+				
+				case Listener.REPLAY_VOICE_ALLOW:
+					 flag=true;
 					 String key = RandomUtil.generateString();
+					 SM4Utils.setSecretKey(key);
 					 showToast("收到公钥,正在发送秘钥"+key);
 					 byte[] plainText =key.getBytes();
 					 String secretkey =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText);
-					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey, Listener.KEY_EXCHANGE));
+					 sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey, Listener.KEY_EXCHANGE));
+					 if(popupWindow!=null) popupWindow.dismiss();
+					break;
+					
+				case Listener.REPLAY_VIDEO_ALLOW:
+					 String key1 = RandomUtil.generateString();
+					 SM4Utils.setSecretKey(key1);
+					 showToast("收到公钥,正在发送秘钥"+key1);
+					 byte[] plainText1 =key1.getBytes();
+					 String secretkey1 =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText1);
+					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey1, Listener.KEY_EXCHANGE));
 					if(popupWindow!=null) popupWindow.dismiss();
 					break;
+					
+				case Listener.ACK_RECEIVE:
+					showToast("秘钥交换完成");
+					if(flag) {
+						Intent intent3=new Intent(VoiceAndVideo.this,AudioActivity.class );
+						intent3.putExtra("name", topTitle.getText().toString());
+						intent3.putExtra("IP", chatterIP);
+						intent3.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent3);
+					}else {
+						Intent intent4=new Intent(VoiceAndVideo.this,VideoChat.class );
+						intent4.putExtra("name", topTitle.getText().toString());
+						intent4.putExtra("IP", chatterIP);
+						intent4.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent4);
+					}
+					
+					break;
+					
+				case Listener.KEY_EXCHANGE:
+					String str = new String(SM2Utils.decrypt(Util.hexToByte(SM2Utils.getPrik()),Util.hexToByte(message.getMsg())));
+					showToast("秘钥收到"+str);
+					SM4Utils.setSecretKey(str);
+					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ACK_RECEIVE));
+					if(flag) {
+						Intent intent1=new Intent(VoiceAndVideo.this,AudioActivity.class );
+						intent1.putExtra("name", topTitle.getText().toString());
+						intent1.putExtra("IP", chatterIP);
+						intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent1);
+					}else {
+						Intent intent2=new Intent(VoiceAndVideo.this,VideoChat.class );
+						intent2.putExtra("name", topTitle.getText().toString());
+						intent2.putExtra("IP", chatterIP);
+						intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent2);
+					}
+					
+					break;
+					
+			
+					
+			
+				case Listener.REPLAY_VOICE_NOT_ALLOW:	
 				case Listener.REPLAY_VIDEO_NOT_ALLOW:
 					showToast("对方拒绝视屏");
 					break;
