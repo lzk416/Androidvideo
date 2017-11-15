@@ -30,7 +30,6 @@ import android.widget.TextView;
 
 import com.ty.winchat.R;
 import com.ty.winchat.listener.TCPVideoReceiveListener;
-import com.ty.winchat.listener.UDPVoiceListener;
 import com.ty.winchat.listener.inter.OnBitmapLoaded;
 import com.ty.winchat.util.Constant;
 import com.ty.winchat.util.Util;
@@ -59,7 +58,6 @@ public class VideoChat extends Base implements SurfaceHolder.Callback, Camera.Pr
 	 private int port=Constant.VIDEO_PORT;
 	 
 	 private TCPVideoReceiveListener videoReceiveListener;
-	 private UDPVoiceListener voiceListener;
 	 
 	 private boolean stop;//标识activity被遮挡
 	 
@@ -75,18 +73,6 @@ public class VideoChat extends Base implements SurfaceHolder.Callback, Camera.Pr
 		setContentView(R.layout.video_chat1);
 		findViews();
 		chatterIP=getIntent().getStringExtra("IP");
-		try {
-			voiceListener=UDPVoiceListener.getInstance(InetAddress.getByName(chatterIP));
-			 voiceListener.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-			showToast("抱歉，语音聊天器打开失败");
-			try {
-				voiceListener.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
 		 
 		
 		new Thread(new Runnable() {
@@ -261,7 +247,6 @@ public class VideoChat extends Base implements SurfaceHolder.Callback, Camera.Pr
 		super.onDestroy();
 		try {
 			videoReceiveListener.close();
-			voiceListener.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

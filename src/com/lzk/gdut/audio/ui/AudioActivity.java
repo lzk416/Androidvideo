@@ -12,11 +12,13 @@ import org.apache.http.conn.util.InetAddressUtils;
 
 import com.ty.winchat.R;
 import com.ty.winchat.ui.Main;
+import com.ty.winchat.ui.VideoChat;
 import com.ty.winchat.ui.VoiceAndVideo;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -89,13 +91,21 @@ public class AudioActivity extends Activity {
 			public void onClick(View arg0) {
 				audioWrapper.stopListen();
 				audioWrapper.stopRecord();
-				voice.setFlag(false);
-				Intent intent=new Intent(AudioActivity.this,Main.class );
-				startActivity(intent);
+				finish();
 			}
 		});
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode==KeyEvent.KEYCODE_BACK){
+			audioWrapper.stopListen();
+			audioWrapper.stopRecord();
+			finish();
+		}
+		return true;
+	}
+
 	public static String getLocalIpAddress(){
 		try{
 			Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); 

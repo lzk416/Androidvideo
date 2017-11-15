@@ -274,6 +274,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					showDialog("对方请求视屏,同意吗？", new OnClickListener() {
 						@Override
 						public void onClick(View v) {
+							flag=false;
 							showToast("正在发送公钥");
 							SM2Utils.generateKeyPair();
 							String pubk = SM2Utils.getPubk();
@@ -303,6 +304,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					break;
 					
 				case Listener.REPLAY_VIDEO_ALLOW:
+					 flag=false;
 					 String key1 = RandomUtil.generateString();
 					 SM4Utils.setSecretKey(key1);
 					 showToast("收到公钥,正在发送秘钥"+key1);
