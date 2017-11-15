@@ -41,7 +41,7 @@ public class AudioWrapper {  //audio类的包装器，主要负责实例化
 	}
 
 	public void stopListen() {
-		if (audioRecorder != null)
-			audioRecorder.stopRecording();
+		if (audioReceiver != null)
+			audioReceiver.stopRecieving();
 	}
 }

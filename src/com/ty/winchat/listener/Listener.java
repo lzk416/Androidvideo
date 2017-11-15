@@ -32,6 +32,8 @@ public abstract class Listener extends Thread{
 	public static final int REPLAY_VOICE_ALLOW=18;//请求语音聊天
 	public static final int REPLAY_VOICE_NOT_ALLOW=19;//请求语音聊天
 	
+	public static final int BEGIN_RECEIVE_VOICE=20;//开始接收语音数据
+	public static final int END_RECEIVE_VOICE=21;//结束接收语音数据
 	
 	/**打开监听器*/
 	abstract void open() throws IOException;

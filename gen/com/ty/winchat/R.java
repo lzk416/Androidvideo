@@ -85,6 +85,7 @@ public final class R {
     public static final class id {
         public static final int TextView01=0x7f09004a;
         public static final int adLayout=0x7f090028;
+        public static final int begin=0x7f090002;
         public static final int btnExit=0x7f090049;
         public static final int btnRecord=0x7f090047;
         public static final int btnStop=0x7f090048;
@@ -101,6 +102,7 @@ public final class R {
         public static final int confirm_dialog_cancle=0x7f090012;
         public static final int confirm_dialog_confirm=0x7f090011;
         public static final int confirm_dialog_txt=0x7f090010;
+        public static final int end=0x7f090003;
         public static final int face_dialog_dot_1=0x7f090014;
         public static final int face_dialog_dot_2=0x7f090015;
         public static final int face_dialog_dot_3=0x7f090016;
@@ -131,7 +133,7 @@ public final class R {
         public static final int main_listview_child_item_ip=0x7f09002d;
         public static final int main_listview_child_item_msg_num=0x7f09002b;
         public static final int main_listview_child_item_name=0x7f09002c;
-        public static final int menu_settings=0x7f090053;
+        public static final int menu_settings=0x7f090056;
         public static final int message_chat_bottom_layout=0x7f090031;
         public static final int message_chat_edt=0x7f090035;
         public static final int message_chat_face=0x7f090033;
@@ -162,11 +164,12 @@ public final class R {
         public static final int v1=0x7f090041;
         public static final int v2=0x7f09003d;
         public static final int v3=0x7f090044;
-        public static final int video=0x7f090003;
+        public static final int video=0x7f090055;
         public static final int video_chat_myview=0x7f09004c;
         public static final int video_chat_preview=0x7f09004d;
         public static final int videoandvocicelistview=0x7f090001;
-        public static final int voice=0x7f090002;
+        public static final int voice=0x7f090054;
+        public static final int voice_confirm_txt=0x7f090053;
     }
     public static final class layout {
         public static final int begin_and_end_voice=0x7f030000;
@@ -192,7 +195,8 @@ public final class R {
         public static final int video_chat1=0x7f030014;
         public static final int voice=0x7f030015;
         public static final int voice_chat=0x7f030016;
-        public static final int voiceandvideo=0x7f030017;
+        public static final int voice_dialog=0x7f030017;
+        public static final int voiceandvideo=0x7f030018;
     }
     public static final class menu {
         public static final int activity_main=0x7f080000;
@@ -202,6 +206,7 @@ public final class R {
         public static final int begin=0x7f060004;
         public static final int end=0x7f060005;
         public static final int menu_settings=0x7f060001;
+        public static final int tips=0x7f060006;
         public static final int video=0x7f060003;
         public static final int voice=0x7f060002;
     }

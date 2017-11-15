@@ -27,7 +27,6 @@ import android.widget.Toast;
 public class AudioActivity extends Activity {
 	String LOG = "MainActivity";
 	private AudioWrapper audioWrapper;
-	VoiceAndVideo voice = new VoiceAndVideo();
 	// View
 	private Button btnStartRecord;
 	private Button btnStopRecord;

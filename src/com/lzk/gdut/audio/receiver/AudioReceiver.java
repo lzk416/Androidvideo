@@ -65,10 +65,9 @@ public class AudioReceiver implements Runnable {
 		try {
 			while (isRunning) {
 				socket.receive(packet);
-				InetAddress address = packet.getAddress();
 				int length = packet.getLength();
+				Log.e(LOG,"收到的包的长度： "+length);
 				byte[] data = packet.getData();
-				int port2 = packet.getPort();
 				// 每接收一个UDP包，就交给解码器，等待解码
 				decrypt.addData(data, length);
 			}

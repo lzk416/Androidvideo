@@ -20,6 +20,7 @@ import com.ty.winchat.model.UDPMessage;
 import com.ty.winchat.model.User;
 import com.ty.winchat.ui.Main;
 import com.ty.winchat.ui.VoiceAndVideo.MessageUpdateBroadcastReceiver;
+import com.ty.winchat.ui.VoiceChat.MessageUpdateVoiceBroadcastReceiver;
 /**
  * 主要用来接收UDP消息，存储在messages中，当有消息来时，通知activity来获取
  * @author wj
@@ -135,6 +136,7 @@ public class ChatService extends Service implements OnUDPReceiveMessage{
 	case Listener.ASK_VIDEO:
 	case Listener.REPLAY_VIDEO_ALLOW:
 	case Listener.REPLAY_VIDEO_NOT_ALLOW:
+
 		
 	case Listener.REPLAY_SEND_FILE:
 	case Listener.RECEIVE_MSG:
@@ -142,7 +144,13 @@ public class ChatService extends Service implements OnUDPReceiveMessage{
 	case Listener.ASK_SEND_FILE:
 		sendBroadcast(new Intent(MessageUpdateBroadcastReceiver.ACTION_NOTIFY_DATA));
 		break;
+
+	case Listener.BEGIN_RECEIVE_VOICE:
+	case Listener.END_RECEIVE_VOICE:
+		sendBroadcast(new Intent(MessageUpdateVoiceBroadcastReceiver.ACTION_NOTIFY_DATA));
+		break;
 	}
+	  
   }
 
 	@Override

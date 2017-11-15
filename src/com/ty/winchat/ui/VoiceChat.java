@@ -1,6 +1,5 @@
 package com.ty.winchat.ui;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -12,10 +11,6 @@ import java.util.Queue;
 
 import org.json.JSONObject;
 
-import com.lzk.gdut.audio.sm.RandomUtil;
-import com.lzk.gdut.audio.sm.SM2Utils;
-import com.lzk.gdut.audio.sm.SM4Utils;
-import com.lzk.gdut.audio.sm.Util;
 import com.ty.winchat.R;
 import com.ty.winchat.WinChatApplication;
 import com.ty.winchat.listener.Listener;
@@ -41,6 +36,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -48,17 +44,14 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+import xmu.swordbearer.audio.AudioWrapper;
+import xmu.swordbearer.audio.NetConfig;
 
-public class VoiceAndVideo extends Base implements OnClickListener{
-	
-	private static final String TAG =  "KEYCHANGE";
+public class VoiceChat  extends Base implements OnClickListener{
+	private static final String TAG =  "VoiceChat";
+	private AudioWrapper audioWrapper = AudioWrapper.getInstance(); ;
 	//请求语音则为true，请求视频即为false
-	private boolean flag = false;
-	private Button voice,video;
-	
-	public void setFlag(boolean flag) {
-		this.flag = flag;
-	}
+	private Button end,begin;
 	private ListView listView;
 	private MyBinder binder;
 	private User chatter;//对方聊天人
@@ -69,7 +62,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	private String chatterIP;//记录当前用户ip
 	private TextView topTitle;
 	private TCPFileListener fileListener;
-	private MessageUpdateBroadcastReceiver receiver=new MessageUpdateBroadcastReceiver();
+	private MessageUpdateVoiceBroadcastReceiver receiver=new MessageUpdateVoiceBroadcastReceiver();
 	private AlarmManager alarmManager;//用来发送心跳包
 	private PendingIntent pendingIntent;
 	//PopupWindow即可为弹出的提示框
@@ -89,9 +82,10 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	  super.onCreate(savedInstanceState);
-	  setContentView(R.layout.voiceandvideo);
+	  setContentView(R.layout.begin_and_end_voice);
 	  chatterIP=getIntent().getStringExtra("IP");
 	  chatterDeviceCode=getIntent().getStringExtra("DeviceCode");
+	  NetConfig.setServerHost(chatterIP);
 	  findViews();
 	  init();
 	  ((WinChatApplication)getApplication()).createDir();
@@ -100,13 +94,13 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	
 	private void init() {
 		 //绑定到service
-		  Intent intent=new Intent(VoiceAndVideo.this,ChatService.class);
+		  Intent intent=new Intent(VoiceChat.this,ChatService.class);
 		  //在这里绑定之后，就都可以获得那个bind对象，即可获得里面的方法
 		  bindService(intent, connection=new MyServiceConnection(), Context.BIND_AUTO_CREATE);
 		  //注册更新广播
 		  IntentFilter filter=new IntentFilter();
-		  filter.addAction(MessageUpdateBroadcastReceiver.ACTION_NOTIFY_DATA);
-		  filter.addAction(MessageUpdateBroadcastReceiver.ACTION_HEARTBEAT);
+		  filter.addAction(MessageUpdateVoiceBroadcastReceiver.ACTION_NOTIFY_DATA);
+		  filter.addAction(MessageUpdateVoiceBroadcastReceiver.ACTION_HEARTBEAT);
 		  registerReceiver(receiver, filter);
 		  //开启心跳包
 		  alarmManager=(AlarmManager) getSystemService(ALARM_SERVICE);
@@ -121,26 +115,28 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 		topTitle=(TextView) findViewById(R.id.toptextView);
 		topTitle.setText(getIntent().getStringExtra("name"));
 		listView.setDivider(null);
-		voice=(Button) findViewById(R.id.voice);
-		video=(Button) findViewById(R.id.video);
-		voice.setOnClickListener(this);
-		video.setOnClickListener(this);
+		end=(Button) findViewById(R.id.end);
+		begin=(Button) findViewById(R.id.begin);
+		end.setOnClickListener(this);
+		begin.setOnClickListener(this);
 	}
 
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.voice:
-			
-			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VOICE));
+		case R.id.begin:
+			begin.setEnabled(false);
+			audioWrapper.startRecord();
+			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.BEGIN_RECEIVE_VOICE));
 			closeMorePopupWindow();
-			showToast("已发送请求，对方同意后自动进行语音聊天");
 			break;
-		case R.id.video:
-			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VIDEO));
+		case R.id.end:
+			begin.setEnabled(true);
+			audioWrapper.stopRecord();
+			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.END_RECEIVE_VOICE));
 			closeMorePopupWindow();
-			showToast("已发送请求，对方同意后自动进行视屏聊天");
+			finish();
 			break;
 		}
 	}
@@ -190,7 +186,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 			}
 		}else{
 			 unbindService(connection);
-			 Intent intent=new Intent(VoiceAndVideo.this,ChatService.class);
+			 Intent intent=new Intent(VoiceChat.this,ChatService.class);
 			 bindService(intent, connection=new MyServiceConnection(), Context.BIND_AUTO_CREATE);
 			 Toast.makeText(this, "未发送出去,请重新发送", Toast.LENGTH_SHORT).show();
 		}
@@ -225,9 +221,8 @@ public class VoiceAndVideo extends Base implements OnClickListener{
     }
 
 		@Override
-    public void onServiceDisconnected(ComponentName name) {
-    }
-  	
+		public void onServiceDisconnected(ComponentName name) {
+		}
   }
 	
 	/**
@@ -243,123 +238,22 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 			message=iterator.next();
 			Log.e(TAG, "类型："+message.getType());
 			switch (message.getType()) {
-			
-				
 				case Listener.RECEIVE_MSG:
 					myMessages.add(message);
 					break;
 					
-				case Listener.ASK_VOICE:
-					showDialog("对方请求语音,同意吗？", new OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							flag=true;
-							showToast("正在发送公钥");
-							SM2Utils.generateKeyPair();
-							String pubk = SM2Utils.getPubk();
-							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(pubk, Listener.REPLAY_VOICE_ALLOW));
-							if(popupWindow!=null) popupWindow.dismiss();
-						}
-					}, new OnClickListener() {
-						
-						@Override
-						public void onClick(View v) {
-							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.REPLAY_VIDEO_NOT_ALLOW));
-							if(popupWindow!=null) popupWindow.dismiss();
-						}
-					}, true);
-					break;
-					
-				case Listener.ASK_VIDEO:
-					showDialog("对方请求视屏,同意吗？", new OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							flag=false;
-							showToast("正在发送公钥");
-							SM2Utils.generateKeyPair();
-							String pubk = SM2Utils.getPubk();
-							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(pubk, Listener.REPLAY_VIDEO_ALLOW));
-							if(popupWindow!=null) popupWindow.dismiss();
-						}
-					}, new OnClickListener() {
-						
-						@Override
-						public void onClick(View v) {
-							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.REPLAY_VIDEO_NOT_ALLOW));
-							if(popupWindow!=null) popupWindow.dismiss();
-						}
-					}, true);
-					break;
-					
 				
-				case Listener.REPLAY_VOICE_ALLOW:
-					 flag=true;
-					 String key = RandomUtil.generateString();
-					 SM4Utils.setSecretKey(key);
-					 showToast("收到公钥,正在发送秘钥"+key);
-					 byte[] plainText =key.getBytes();
-					 String secretkey =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText);
-					 sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey, Listener.KEY_EXCHANGE));
-					 if(popupWindow!=null) popupWindow.dismiss();
+				case Listener.BEGIN_RECEIVE_VOICE:
+					audioWrapper.startListen();
+					showDialog("对方正在讲话中，请注意接听……");
 					break;
 					
-				case Listener.REPLAY_VIDEO_ALLOW:
-					 flag=false;
-					 String key1 = RandomUtil.generateString();
-					 SM4Utils.setSecretKey(key1);
-					 showToast("收到公钥,正在发送秘钥"+key1);
-					 byte[] plainText1 =key1.getBytes();
-					 String secretkey1 =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText1);
-					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey1, Listener.KEY_EXCHANGE));
+				case Listener.END_RECEIVE_VOICE:
+					audioWrapper.stopListen();
 					if(popupWindow!=null) popupWindow.dismiss();
+					finish();
 					break;
 					
-				case Listener.ACK_RECEIVE:
-					showToast("秘钥交换完成");
-					if(flag) {
-						Intent intent3=new Intent(VoiceAndVideo.this,VoiceChat.class );
-						intent3.putExtra("name", topTitle.getText().toString());
-						intent3.putExtra("IP", chatterIP);
-						intent3.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent3);
-					}else {
-						Intent intent4=new Intent(VoiceAndVideo.this,VideoChat.class );
-						intent4.putExtra("name", topTitle.getText().toString());
-						intent4.putExtra("IP", chatterIP);
-						intent4.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent4);
-					}
-					
-					break;
-					
-				case Listener.KEY_EXCHANGE:
-					String str = new String(SM2Utils.decrypt(Util.hexToByte(SM2Utils.getPrik()),Util.hexToByte(message.getMsg())));
-					showToast("秘钥收到"+str);
-					SM4Utils.setSecretKey(str);
-					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ACK_RECEIVE));
-					if(flag) {
-						Intent intent1=new Intent(VoiceAndVideo.this,VoiceChat.class );
-						intent1.putExtra("name", topTitle.getText().toString());
-						intent1.putExtra("IP", chatterIP);
-						intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent1);
-					}else {
-						Intent intent2=new Intent(VoiceAndVideo.this,VideoChat.class );
-						intent2.putExtra("name", topTitle.getText().toString());
-						intent2.putExtra("IP", chatterIP);
-						intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent2);
-					}
-					
-					break;
-					
-			
-					
-			
-				case Listener.REPLAY_VOICE_NOT_ALLOW:	
-				case Listener.REPLAY_VIDEO_NOT_ALLOW:
-					showToast("对方拒绝视屏");
-					break;
 				case Listener.REPLAY_SEND_FILE:
 					try {
 						  String msg=message.getMsg();
@@ -387,7 +281,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	 * @param txt
 	 * @param ok
 	 */
-	private void showDialog(String txt,OnClickListener ok,OnClickListener cancl,boolean buttonShow){
+	private void showDialog(String txt){
 		if(popupWindow!=null)
 			popupWindow.dismiss();
 		popupWindow=new PopupWindow(getApplicationContext());
@@ -395,18 +289,8 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 		popupWindow.setHeight(height);
 		popupWindow.setFocusable(false);
 		popupWindow.setOutsideTouchable(false);
-		popupWindow.setBackgroundDrawable(new BitmapDrawable());// 这个是为了点击“返回Back”也能使其消失，并且并不会影响你的背景
-		View view= getLayoutInflater().inflate(R.layout.confirm_dialog, null);
+		View view= getLayoutInflater().inflate(R.layout.voice_dialog, null);
 		TextView textView=(TextView) view.findViewById(R.id.confirm_dialog_txt);
-		Button confirm=(Button) view.findViewById(R.id.confirm_dialog_confirm);
-		Button cancle=(Button) view.findViewById(R.id.confirm_dialog_cancle);
-		if(!buttonShow){
-			confirm.setVisibility(View.INVISIBLE);
-			cancle.setVisibility(View.INVISIBLE);
-		}else {
-			confirm.setOnClickListener(ok);
-			cancle.setOnClickListener(cancl);
-		}
 		popupWindow.setContentView(view);
 		textView.setText(txt);
 		if(started)//Activity已经渲染完毕
@@ -428,9 +312,20 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 		}
 	}
 	
-	  public class MessageUpdateBroadcastReceiver extends BroadcastReceiver{
-		  public static final String ACTION_HEARTBEAT="com.ty.winchat.heartbeat";
-		  public static final String ACTION_NOTIFY_DATA="com.ty.winchat.notifydata";
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode==KeyEvent.KEYCODE_BACK){
+			audioWrapper.stopListen();
+			audioWrapper.stopRecord();
+			finish();
+		}
+		return true;
+	}
+	
+	  public class MessageUpdateVoiceBroadcastReceiver extends BroadcastReceiver{
+		  public static final String ACTION_HEARTBEAT="voice.heartbeat";
+		  public static final String ACTION_NOTIFY_DATA="voice.notifydata";
 		  
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -456,12 +351,11 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 								}
 						}else {
 							 unbindService(connection);
-							 Intent intent1=new Intent(VoiceAndVideo.this,ChatService.class);
+							 Intent intent1=new Intent(VoiceChat.this,ChatService.class);
 							 bindService(intent1, connection=new MyServiceConnection(), Context.BIND_AUTO_CREATE);
 						}
 				}
 	    }
 			
 		}
-	
 }

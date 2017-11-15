@@ -28,6 +28,7 @@ import com.ty.winchat.util.Constant;
  */
 public class UDPMessageListener extends UDPListener{
 	
+	String LOG = "udpMessageType";
 	//文本消息监听端口
 	private final int port=Constant.MESSAGE_PORT;
 	private final int BUFFER_SIZE=1024*3;//3k的数据缓冲区
@@ -60,7 +61,7 @@ public class UDPMessageListener extends UDPListener{
     try {
 	    String temp=new String(data,0,packet.getLength(),Constant.ENCOD);//得到接收的消息
 	    UDPMessage msg = new UDPMessage(new JSONObject(temp));
-//	    Log.d("====", "收到消息："+msg.toString());
+	    Log.e(LOG, "类型："+msg.getType());
 	    String sourceIp=packet.getAddress().getHostAddress();//对方ip
 	    int type=msg.getType();
 	    switch (type) {
@@ -87,6 +88,9 @@ public class UDPMessageListener extends UDPListener{
 				case REMOVE_USER://删除用户
 					users.remove(sourceIp);
 					break;
+					
+				case BEGIN_RECEIVE_VOICE:
+				case END_RECEIVE_VOICE:
 				case ASK_VOICE:
 				case REPLAY_VOICE_ALLOW:
 				case REPLAY_VOICE_NOT_ALLOW:
