@@ -16,6 +16,7 @@ import com.lzk.gdut.audio.sm.RandomUtil;
 import com.lzk.gdut.audio.sm.SM2Utils;
 import com.lzk.gdut.audio.sm.SM4Utils;
 import com.lzk.gdut.audio.sm.Util;
+import com.nercms.VideoChatActivity;
 import com.ty.winchat.R;
 import com.ty.winchat.WinChatApplication;
 import com.ty.winchat.listener.Listener;
@@ -131,13 +132,12 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.voice:
-			
+		case R.id.video:
 			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VOICE));
 			closeMorePopupWindow();
 			showToast("已发送请求，对方同意后自动进行语音聊天");
 			break;
-		case R.id.video:
+		case R.id.voice:
 			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ASK_VIDEO));
 			closeMorePopupWindow();
 			showToast("已发送请求，对方同意后自动进行视屏聊天");
@@ -254,7 +254,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 						@Override
 						public void onClick(View v) {
 							flag=true;
-							showToast("正在发送公钥");
+							showToast("正在发送向对方发送SM2算法公钥");
 							SM2Utils.generateKeyPair();
 							String pubk = SM2Utils.getPubk();
 							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(pubk, Listener.REPLAY_VOICE_ALLOW));
@@ -275,7 +275,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 						@Override
 						public void onClick(View v) {
 							flag=false;
-							showToast("正在发送公钥");
+							showToast("正在发送向对方发送SM2算法公钥");
 							SM2Utils.generateKeyPair();
 							String pubk = SM2Utils.getPubk();
 							sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(pubk, Listener.REPLAY_VIDEO_ALLOW));
@@ -296,7 +296,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					 flag=true;
 					 String key = RandomUtil.generateString();
 					 SM4Utils.setSecretKey(key);
-					 showToast("收到公钥,正在发送秘钥"+key);
+					 showToast("收到对方公钥,正在发送SM4秘钥: "+key);
 					 byte[] plainText =key.getBytes();
 					 String secretkey =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText);
 					 sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey, Listener.KEY_EXCHANGE));
@@ -307,7 +307,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					 flag=false;
 					 String key1 = RandomUtil.generateString();
 					 SM4Utils.setSecretKey(key1);
-					 showToast("收到公钥,正在发送秘钥"+key1);
+					 showToast("收到对方公钥,正在发送SM4秘钥: "+key1);
 					 byte[] plainText1 =key1.getBytes();
 					 String secretkey1 =  SM2Utils.encrypt(Util.hexToByte(message.getMsg()), plainText1);
 					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage(secretkey1, Listener.KEY_EXCHANGE));
@@ -323,9 +323,10 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 						intent3.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent3);
 					}else {
-						Intent intent4=new Intent(VoiceAndVideo.this,VideoChat.class );
+						Intent intent4=new Intent(VoiceAndVideo.this,VideoChatActivity.class );
 						intent4.putExtra("name", topTitle.getText().toString());
-						intent4.putExtra("IP", chatterIP);
+						intent4.putExtra("remote_ip", chatterIP);
+						intent4.putExtra("remote_port", 19888);
 						intent4.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent4);
 					}
@@ -334,7 +335,7 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 					
 				case Listener.KEY_EXCHANGE:
 					String str = new String(SM2Utils.decrypt(Util.hexToByte(SM2Utils.getPrik()),Util.hexToByte(message.getMsg())));
-					showToast("秘钥收到"+str);
+					showToast("收到SM4秘钥： "+str);
 					SM4Utils.setSecretKey(str);
 					sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.ACK_RECEIVE));
 					if(flag) {
@@ -344,9 +345,10 @@ public class VoiceAndVideo extends Base implements OnClickListener{
 						intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent1);
 					}else {
-						Intent intent2=new Intent(VoiceAndVideo.this,VideoChat.class );
+						Intent intent2=new Intent(VoiceAndVideo.this,VideoChatActivity.class );
 						intent2.putExtra("name", topTitle.getText().toString());
-						intent2.putExtra("IP", chatterIP);
+						intent2.putExtra("remote_ip", chatterIP);
+						intent2.putExtra("remote_port", 19888);
 						intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent2);
 					}

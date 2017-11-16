@@ -126,13 +126,13 @@ public class VoiceChat  extends Base implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.begin:
-			begin.setEnabled(false);
+			begin.setBackgroundResource(R.drawable.voice_ing);
 			audioWrapper.startRecord();
 			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.BEGIN_RECEIVE_VOICE));
 			closeMorePopupWindow();
 			break;
 		case R.id.end:
-			begin.setEnabled(true);
+			begin.setBackgroundResource(R.drawable.begin_voice);
 			audioWrapper.stopRecord();
 			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.END_RECEIVE_VOICE));
 			closeMorePopupWindow();

@@ -53,9 +53,9 @@ import com.ty.winchat.service.ChatService;
 import com.ty.winchat.service.ChatService.MyBinder;
 import com.ty.winchat.util.Constant;
 import com.ty.winchat.util.LocalMemoryCache;
+import com.ty.winchat.util.PullToRefreshExpandableListView;
 import com.ty.winchat.util.Util;
-import com.ty.winchat.widget.PullToRefreshExpandableListView;
-import com.ty.winchat.widget.PullToRefreshExpandableListView.OnRefreshListener;
+import com.ty.winchat.util.PullToRefreshExpandableListView.OnRefreshListener;
 
 public class Main extends Base implements IconReceived{
 	//实例化一个自定义下拉刷新view的控件

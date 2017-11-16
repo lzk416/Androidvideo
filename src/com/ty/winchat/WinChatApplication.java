@@ -174,7 +174,7 @@ public class WinChatApplication extends Application{
 		}
 
 		public String getMyName() {
-			return getSharedPreferences("me", 0).getString("name", "ÐÂÊÖ");
+			return getSharedPreferences("me", 0).getString("name", "LZK_ESALAB");
 		}
 
 		public String getFilePath() {

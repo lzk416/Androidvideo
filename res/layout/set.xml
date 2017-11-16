@@ -83,11 +83,6 @@
 	        android:layout_marginLeft="10dip"
 	        />
 	</RelativeLayout>
-	
-    
-    
-   
-    
     
     <RelativeLayout 
         android:layout_width="match_parent"
@@ -107,7 +102,7 @@
         android:id="@+id/set_option_edt"
         android:layout_width="180dip"
         android:layout_height="100dip"
-        android:hint="请输入您的意见(没有可不必填写)…"
+        android:hint="@string/saytoESALAB"
         android:layout_toRightOf="@id/v3"
         />
     

@@ -17,16 +17,15 @@
         android:cacheColorHint="@color/transparent"
         android:listSelector="@color/transparent" >
     </ListView>
-    
+
 	<Button
 	    android:id="@+id/voice"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignLeft="@+id/video"
 	    android:layout_below="@+id/video"
-	    android:layout_marginTop="34dp"
-	    android:background="@drawable/shape"
-	    android:text="@string/voice" />
+	    android:layout_marginTop="30dp"
+	    android:background="@drawable/video" />
 
 	<Button
 	    android:id="@+id/video"
@@ -34,8 +33,26 @@
 	    android:layout_height="wrap_content"
 	    android:layout_below="@+id/include1"
 	    android:layout_centerHorizontal="true"
-	    android:layout_marginTop="128dp"
-	    android:background="@drawable/shape"
-	    android:text="@string/video" />
+	    android:layout_marginTop="43dp"
+	    android:background="@drawable/voice" />
+
+	<TextView
+	    android:id="@+id/textView2"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBottom="@+id/video"
+	    android:layout_centerHorizontal="true"
+	    android:layout_marginBottom="58dp"
+	    android:text="音频通讯" />
+
+	<TextView
+	    android:id="@+id/textView1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/voice"
+	    android:layout_alignBottom="@+id/voice"
+	    android:layout_alignRight="@+id/textView2"
+	    android:layout_marginRight="12dp"
+	    android:text="视频通讯" />
 
 </RelativeLayout>

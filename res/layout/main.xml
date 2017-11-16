@@ -7,7 +7,7 @@
     
     <include layout="@layout/head"/>
    <!--在java中自定义一个布局文件  -->
-    <com.ty.winchat.widget.PullToRefreshExpandableListView 
+    <com.ty.winchat.util.PullToRefreshExpandableListView 
         android:id="@+id/main_listview"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
@@ -15,7 +15,7 @@
         android:cacheColorHint="@color/transparent"
         >
         
-    </com.ty.winchat.widget.PullToRefreshExpandableListView>
+    </com.ty.winchat.util.PullToRefreshExpandableListView>
 
     <LinearLayout
         android:id="@+id/adLayout"
