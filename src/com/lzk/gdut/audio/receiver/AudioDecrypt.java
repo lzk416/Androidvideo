@@ -65,12 +65,20 @@ public class AudioDecrypt implements Runnable {
 				while(dataList.size()>0){
 					AudioData decodedData = dataList.remove(0);
 					data = decodedData.getRealData();
-					Log.e(LOG, "等待解密数据 " + data.length);
-					byte[] decryptdata = sm.decryptData_ECB(data);
-					Log.e(LOG, "解密之后的数据" + data.length);
-					decoder.addData(decryptdata, decryptdata.length);
+					if(sm.getEntryptVoice()) {
+						decoder.addData(data, data.length);
+					}else {
+						byte[] decryptdata = sm.decryptData_ECB(data);
+						decoder.addData(decryptdata, decryptdata.length);
+					}
+					
 				}
 			} catch (Exception e) {
+				int errorCount = 0;
+				if(sm.getEntryptVoice() && errorCount<2) {
+					isDecrypt = true;
+					errorCount++;
+				}
 				isDecrypt = false;
 				e.printStackTrace();
 			}

@@ -11,6 +11,7 @@ import java.util.Queue;
 
 import org.json.JSONObject;
 
+import com.lzk.gdut.audio.sm.SM4Utils;
 import com.ty.winchat.R;
 import com.ty.winchat.WinChatApplication;
 import com.ty.winchat.listener.Listener;
@@ -51,7 +52,7 @@ public class VoiceChat  extends Base implements OnClickListener{
 	private static final String TAG =  "VoiceChat";
 	private AudioWrapper audioWrapper = AudioWrapper.getInstance(); ;
 	//请求语音则为true，请求视频即为false
-	private Button end,begin;
+	private Button end,begin,entrypt;
 	private ListView listView;
 	private MyBinder binder;
 	private User chatter;//对方聊天人
@@ -65,6 +66,7 @@ public class VoiceChat  extends Base implements OnClickListener{
 	private MessageUpdateVoiceBroadcastReceiver receiver=new MessageUpdateVoiceBroadcastReceiver();
 	private AlarmManager alarmManager;//用来发送心跳包
 	private PendingIntent pendingIntent;
+	private SM4Utils sm4;
 	//PopupWindow即可为弹出的提示框
 	private PopupWindow popupWindow;
 	private final int SHOW_DIALOG=0XF1001;
@@ -117,6 +119,8 @@ public class VoiceChat  extends Base implements OnClickListener{
 		listView.setDivider(null);
 		end=(Button) findViewById(R.id.end);
 		begin=(Button) findViewById(R.id.begin);
+		entrypt=(Button) findViewById(R.id.entrypt);
+		entrypt.setOnClickListener(this);
 		end.setOnClickListener(this);
 		begin.setOnClickListener(this);
 	}
@@ -125,8 +129,15 @@ public class VoiceChat  extends Base implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
+		case R.id.entrypt:
+			entrypt.setBackgroundResource(R.drawable.voice_ing);
+			audioWrapper.startRecord();
+			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("entrypt", Listener.BEGIN_RECEIVE_VOICE));
+			closeMorePopupWindow();
+			break;
 		case R.id.begin:
 			begin.setBackgroundResource(R.drawable.voice_ing);
+			
 			audioWrapper.startRecord();
 			sendMsg(WinChatApplication.mainInstance.getMyUdpMessage("", Listener.BEGIN_RECEIVE_VOICE));
 			closeMorePopupWindow();
@@ -244,6 +255,11 @@ public class VoiceChat  extends Base implements OnClickListener{
 					
 				
 				case Listener.BEGIN_RECEIVE_VOICE:
+					
+					if(message.getMsg().equals("entrypt")) {
+						sm4 = new SM4Utils();
+						sm4.setEntryptVoice(true);
+					}
 					audioWrapper.startListen();
 					showDialog("对方正在讲话中，请注意接听……");
 					break;

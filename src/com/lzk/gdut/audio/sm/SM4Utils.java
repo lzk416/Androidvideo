@@ -7,7 +7,18 @@ public class SM4Utils
 {
 	public static String secretKey ="asasasasasasasas";
 	public boolean hexString = false;
+	public static boolean isEntryptVoice = false;
 	
+	
+
+	public void setEntryptVoice(boolean isEntryptVoice) {
+		SM4Utils.isEntryptVoice = isEntryptVoice;
+	}
+	
+	public boolean getEntryptVoice() {
+		return isEntryptVoice;
+	}
+
 	public static void setSecretKey(String secretKey) {
 		SM4Utils.secretKey = secretKey;
 	}

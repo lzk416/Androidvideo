@@ -68,7 +68,7 @@ public class Set extends Base implements OnClickListener{
 			 icon.setImageBitmap(Util.getRoundedCornerBitmap(bitmap));
 		}
 		
-		nickNameEdt.setText(getSharedPreferences("me", 0).getString("name", "–¬ ÷"));
+		nickNameEdt.setText(getSharedPreferences("me", 0).getString("name", "LZK_ESELAB"));
 		TextView view=(TextView) findViewById(R.id.toptextView);
 		view.setText("…Ë÷√");
 		nickNameBtn.setOnClickListener(this);
